@@ -4,7 +4,7 @@
 QUALITY=82
 MAX_WIDTH=1920
 OUTPUT_DIR="compressed"
-PATTERN="french-dandy-cover-*.jpg"
+PATTERN="./*.jpg"
 
 # Check if ImageMagick is installed
 check_dependencies() {
@@ -47,7 +47,8 @@ calc_compression() {
 compress_image() {
     local input_file="$1"
     local output_file="$OUTPUT_DIR/$1"
-    local original_size=$(stat -f%z "$input_file" 2>/dev/null || stat -c%s "$input_file")
+    local original_size
+    original_size=$(stat -f%z "$input_file" 2>/dev/null || stat -c%s "$input_file")
     
     # Create output directory if it doesn't exist
     mkdir -p "$OUTPUT_DIR"
@@ -139,13 +140,15 @@ main() {
     # Process all matching files
     for file in $PATTERN; do
         if [ -f "$file" ]; then
-            local original_size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file")
+            local original_size
+            original_size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file")
             total_original_size=$((total_original_size + original_size))
             
             compress_image "$file"
             
             if [ $? -eq 0 ]; then
-                local compressed_size=$(stat -f%z "$OUTPUT_DIR/$file" 2>/dev/null || stat -c%s "$OUTPUT_DIR/$file")
+                local compressed_size
+                compressed_size=$(stat -f%z "$OUTPUT_DIR/$file" 2>/dev/null || stat -c%s "$OUTPUT_DIR/$file")
                 total_compressed_size=$((total_compressed_size + compressed_size))
                 ((processed++))
             else
